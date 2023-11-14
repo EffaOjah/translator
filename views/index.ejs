@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translator</title>
+    <style>
+        /* Reset some default styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Apply blue color scheme */
+        body {
+            background-color: #f0f5f5; /* Light blue-gray */
+            font-family: Arial, sans-serif;
+        }
+
+        /* Header styles */
+        header {
+  background: linear-gradient(to right, blue, purple);
+  width: 100%;
+  
+            color: white;
+            padding: 15px;            
+            text-align: center;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Language selector styles */
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+        }
+
+        /* Text area styles */
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            margin-top: 10px;
+        }
+        #targetText{
+            
+            margin-left: 20px;
+        }
+
+        /* Translate button styles */
+        button {
+            background-color: #0074cc; /* Blue */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            background: linear-gradient(to right, blue, purple);
+  
+        }
+
+        /* Responsive styles for smaller screens */
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            #sourceBox{
+                width: 100% !important;
+            }
+            #targetBox{
+                width: 100% !important;
+            }
+            #trans{
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Language Translator</h1>
+    </header>
+
+    <form action="/" method="post">
+    <div class="container">
+        <label for="sourceLanguage">Select Source Language:</label>
+        <select id="sourceLanguage" disabled>
+            <option value="auto_detect_language">Detect Language</option>
+        </select>
+        <br>
+        <label for="targetLanguage">Select Target Language:</label>
+        <select id="targetLanguage" name="language">
+            <!-- Add language options here -->
+        </select>
+        <br>
+        <br>
+        <div id="trans" style="display: flex">
+            <div style="width: 50%;" id="sourceBox">
+                <label for="">Input:</label><br>
+        <textarea  class="textarea" id="sourceText" placeholder="Enter text to translate" name="text_to_translate"><%= locals.text_to_translate %></textarea>
+    
+            </div>
+            
+            <div style="width: 50%;" id="targetBox">
+                <label for="">Output:</label><br>
+        <p style="width: 400px; background-color: white; border-radius: 7px; height: 200px; margin-top: 10px; border: 1px solid #ccc;"><%= locals.text %></p>
+    </div>
+            </div>
+    
+        <button type="submit" id="translateButton">Translate</button>
+    </div>
+    </form>
+    
+    <script>
+    const languages = [
+  { code: 'af', name: 'Afrikaans' },
+  { code: 'sq', name: 'Albanian' },
+  { code: 'ar', name: 'Arabic' },
+  { code: 'hy', name: 'Armenian' },
+  { code: 'az', name: 'Azerbaijani' },
+  { code: 'eu', name: 'Basque Spanish' },
+  { code: 'be', name: 'Belarusian' },
+  { code: 'bn', name: 'Bengali' },
+  { code: 'bs', name: 'Bosnian' },
+  { code: 'bg', name: 'Bulgarian' },
+  { code: 'ca', name: 'Catalan Spanish' },
+  { code: 'ce', name: 'Cebuano' },
+  { code: 'ha', name: 'Chadic' },
+  { code: 'zh', name: 'Chinese (Mandarin)' },
+  { code: 'co', name: 'Colombian Spanish' },
+  { code: 'hr', name: 'Croatian' },
+  { code: 'cs', name: 'Czech' },
+  { code: 'da', name: 'Danish' },
+  { code: 'nl', name: 'Dutch' },
+  { code: 'en', name: 'English American' },
+  { code: 'en-au', name: 'English Australian' },
+  { code: 'en-ie', name: 'English Irish' },
+  { code: 'en-in', name: 'English Indian' },
+  { code: 'en-sc', name: 'English Scottish' },
+  { code: 'en-uk', name: 'English UK' },
+  { code: 'eo', name: 'Esperanto' },
+  { code: 'et', name: 'Estonian' },
+  { code: 'fr', name: 'European French' },
+  { code: 'es', name: 'European Spanish' },
+  { code: 'fl', name: 'Filipino' },
+  { code: 'fi', name: 'Finnish' },
+  { code: 'mg', name: 'Fiteny Malagasy' },
+  { code: 'fr-ca', name: 'French Canadian' },
+  { code: 'ig', name: 'Igbo' },
+  { code: 'ga', name: 'Irish' },
+  { code: 'gl', name: 'Galician' },
+  { code: 'ka', name: 'Georgian' },
+  { code: 'de', name: 'German' },
+  { code: 'el', name: 'Greek' },
+  { code: 'gu', name: 'Gujarati' },
+  { code: 'ht', name: 'Haitian Creole' },
+  { code: 'ha', name: 'Hausa' },
+  { code: 'he', name: 'Hebrew' },
+  { code: 'hi', name: 'Hindi' },
+  { code: 'hm', name: 'Hmong' },
+  { code: 'hu', name: 'Hungarian' },
+  { code: 'is', name: 'Icelandic' },
+  { code: 'id', name: 'Indonesian' },
+  { code: 'it', name: 'Italian' },
+  { code: 'ja', name: 'Japanese' },
+  { code: 'jv', name: 'Javanese' },
+  { code: 'kn', name: 'Kannada' },
+  { code: 'kk', name: 'Kazakh' },
+  { code: 'km', name: 'Khmer' },
+  { code: 'ko', name: 'Korean' },
+  { code: 'lo', name: 'Lao' },
+  { code: 'la', name: 'Latin' },
+  { code: 'lv', name: 'Latvian' },
+  { code: 'lt', name: 'Lithuanian' },
+  { code: 'mk', name: 'Macedonian' },
+  { code: 'ms', name: 'Malay' },
+  { code: 'ml', name: 'Malayalam' },
+  { code: 'mt', name: 'Maltese' },
+  { code: 'mi', name: 'Te Reo Maori' },
+  { code: 'mr', name: 'Marathi' },
+  { code: 'es-mx', name: 'Mexican Spanish' },
+  { code: 'mn', name: 'Mongolian' },
+  { code: 'ne', name: 'Nepalese' },
+  { code: 'no', name: 'Norwegian' },
+  { code: 'ny', name: 'Nyanja' },
+  { code: 'pl', name: 'Polish' },
+  { code: 'pt', name: 'Portuguese' },
+  { code: 'pt-br', name: 'Portuguese Brazilian' },
+  { code: 'pa', name: 'Punjabi' },
+  { code: 'ro', name: 'Romanian' },
+  { code: 'ru', name: 'Russian' },
+  { code: 'gd', name: 'Scottish Gaelic' },
+  { code: 'sr', name: 'Serbian' },
+  { code: 'si', name: 'Sinhala' },
+  { code: 'sk', name: 'Slovak' },
+  { code: 'sl', name: 'Slovenian' },
+  { code: 'so', name: 'Somali' },
+  { code: 'st', name: 'Southern Sotho' },
+  { code: 'su', name: 'Sudanese' },
+  { code: 'sw', name: 'Swahili' },
+  { code: 'sv', name: 'Swedish' },
+  { code: 'tg', name: 'Tajik' },
+  { code: 'ta', name: 'Tamil' },
+  { code: 'te', name: 'Telugu' },
+  { code: 'th', name: 'Thai' },
+  { code: 'tr', name: 'Turkish' },
+  { code: 'uk', name: 'Ukrainian' },
+  { code: 'ur', name: 'Urdu' },
+  { code: 'uz', name: 'Uzbek' },
+  { code: 'vi', name: 'Vietnamese' },
+  { code: 'yi', name: 'Yiddish' },
+  { code: 'yo', name: 'Yoruba' },
+  { code: 'zu', name: 'Zulu' }
+];
+
+        // Function to populate the select elements with language options
+        function populateLanguageSelects() {
+            const targetLanguageSelect = document.getElementById('targetLanguage');
+
+            languages.forEach(language => {
+                const option = document.createElement('option');
+                option.value = language.code;
+                option.textContent = language.name;
+                option.setAttribute('name', 'language')
+
+                targetLanguageSelect.appendChild(option.cloneNode(true));
+            });
+        }
+
+        // Call the function to populate the select elements
+        populateLanguageSelects();
+    </script>
+</body>
+</html>
